@@ -4,7 +4,9 @@ import sys
 import sqlite3
 
 class InsertDialog(QDialog):
+    """Класс для добавления книги в базу данных"""
     def __init__(self, *args, **kwargs):
+        """Окно интерфейса для добавления книги"""
         super(InsertDialog, self).__init__(*args, **kwargs)
 
         self.QBtn = QPushButton()
@@ -18,10 +20,6 @@ class InsertDialog(QDialog):
 
         layout = QVBoxLayout()
 
-        self.nameinput = QLineEdit()
-        self.nameinput.setPlaceholderText("Название")
-        layout.addWidget(self.nameinput)
-
         self.genreinput = QComboBox()
         self.genreinput.addItem("Классическая литература")
         self.genreinput.addItem("Детективы")
@@ -32,39 +30,45 @@ class InsertDialog(QDialog):
         self.genreinput.addItem("Наука и образование")
         layout.addWidget(self.genreinput)
 
-        self.priceinput = QLineEdit()
-        self.priceinput.setPlaceholderText("Цена")
-        layout.addWidget(self.priceinput)
+        self.authorinput = QLineEdit()
+        self.authorinput.setPlaceholderText("Автор")
+        layout.addWidget(self.authorinput)
+
+        self.nameinput = QLineEdit()
+        self.nameinput.setPlaceholderText("Название")
+        layout.addWidget(self.nameinput)
 
         self.quantityinput = QLineEdit()
         self.quantityinput.setPlaceholderText("Количество")
         layout.addWidget(self.quantityinput)
 
-        self.authorinput = QLineEdit()
-        self.authorinput.setPlaceholderText("Автор")
-        layout.addWidget(self.authorinput)
+        self.priceinput = QLineEdit()
+        self.priceinput.setPlaceholderText("Цена")
+        layout.addWidget(self.priceinput)
 
         layout.addWidget(self.QBtn)
         self.setLayout(layout)
 
     def addbook(self):
+        """Функция для добавления книги в базу данных"""
 
-        name = ""
         genre = ""
-        price = -1
-        quantity = -1
         author = ""
+        name = ""
+        quantity = -1
+        price = -1
 
-        name = self.nameinput.text()
         genre = self.genreinput.itemText(self.genreinput.currentIndex())
-        price = self.priceinput.text()
-        quantity = self.quantityinput.text()
         author = self.authorinput.text()
+        name = self.nameinput.text()
+        quantity = self.quantityinput.text()
+        price = self.priceinput.text()
+
         try:
             self.conn = sqlite3.connect("database.db")
             self.c = self.conn.cursor()
-            self.c.execute("INSERT INTO books (name,genre,price,quantity,author) VALUES (?,?,?,?,?)",
-                           (name, genre, price, quantity, author))
+            self.c.execute("INSERT INTO books (genre, author, name, quantity, price) VALUES (?,?,?,?,?)",
+                           (genre, author, name, quantity, price))
             self.conn.commit()
             self.c.close()
             self.conn.close()
@@ -75,7 +79,9 @@ class InsertDialog(QDialog):
 
 
 class SearchDialog(QDialog):
+    """Класс для поиска книги в базе данных"""
     def __init__(self, *args, **kwargs):
+        """Окно интерфейса для поиска книги"""
         super(SearchDialog, self).__init__(*args, **kwargs)
 
         self.QBtn = QPushButton()
@@ -96,7 +102,7 @@ class SearchDialog(QDialog):
         self.setLayout(layout)
 
     def searchbook(self):
-
+        """Функция для поиска книги в базе данных"""
         searchrol = ""
         searchrol = self.searchinput.text()
         try:
@@ -115,7 +121,9 @@ class SearchDialog(QDialog):
 
 
 class DeleteDialog(QDialog):
+    """Класс для удаления книги из базы данных"""
     def __init__(self, *args, **kwargs):
+        """Окно интерфейса для удаления книги"""
         super(DeleteDialog, self).__init__(*args, **kwargs)
 
         self.QBtn = QPushButton()
@@ -136,7 +144,7 @@ class DeleteDialog(QDialog):
         self.setLayout(layout)
 
     def deletebook(self):
-
+        """Функция для удаления книги из базы данных"""
         delrol = ""
         delrol = self.deleteinput.text()
         try:
@@ -153,7 +161,9 @@ class DeleteDialog(QDialog):
 
 
 class LoginDialog(QDialog):
+    """Класс для входа в систему"""
     def __init__(self, *args, **kwargs):
+        """Окно интерфейса для авторизации"""
         super(LoginDialog, self).__init__(*args, **kwargs)
 
         self.setFixedWidth(300)
@@ -180,13 +190,16 @@ class LoginDialog(QDialog):
         self.setLayout(layout)
 
     def login(self):
+        """Функция для входа в систему"""
         if self.passinput.text() == "123":
             self.accept()
         else:
             QMessageBox.warning(self, 'Ошибка', 'Неверный пароль.')
 
 class AboutDialog(QDialog):
+    """Класс для показа информации о базе данных и владельце"""
     def __init__(self, *args, **kwargs):
+        """Окно интерфейса для показа информации"""
         super(AboutDialog, self).__init__(*args, **kwargs)
 
         self.setFixedWidth(300)
@@ -223,7 +236,17 @@ class AboutDialog(QDialog):
 
 
 class MainWindow(QMainWindow):
+    """Класс для реализации главного окна пользовательского интерфейса."""
     def __init__(self, *args, **kwargs):
+        """Интерфейс главного окна разрабатываемого проекта.
+
+        Функция, объединяющая функционал всей системы.
+        В ней создаются:
+        - интерактивная панель инструментов
+        - строка меню
+        В данном окне отображается таблица с данными и осуществляется работа с ней.
+
+        """
         super(MainWindow, self).__init__(*args, **kwargs)
 
         self.conn = sqlite3.connect("database.db")
@@ -295,6 +318,7 @@ class MainWindow(QMainWindow):
         help_menu.addAction(about_action)
 
     def loaddata(self):
+        """Функция, осуществляющая загрузку уже имеющейся базы данных"""
         self.connection = sqlite3.connect("database.db")
         query = "SELECT * FROM books"
         result = self.connection.execute(query)
@@ -306,6 +330,7 @@ class MainWindow(QMainWindow):
         self.connection.close()
 
     def handlePaintRequest(self, printer):
+        """Функция, отвечающая за корректное отображение таблицы"""
         document = QTextDocument()
         cursor = QTextCursor(document)
         model = self.table.model()
@@ -318,18 +343,22 @@ class MainWindow(QMainWindow):
         document.print_(printer)
 
     def insert(self):
+        """Функция, обращающаяся к классу добавления книги"""
         dlg = InsertDialog()
         dlg.exec_()
 
     def delete(self):
+        """Функция, обращающаяся к классу удаления книги"""
         dlg = DeleteDialog()
         dlg.exec_()
 
     def search(self):
+        """Функция, обращающаяся к классу поиска книги"""
         dlg = SearchDialog()
         dlg.exec_()
 
     def about(self):
+        """Функция, обращающаяся к классу показа информации о владельце"""
         dlg = AboutDialog()
         dlg.exec_()
 
@@ -341,3 +370,5 @@ if (passdlg.exec_() == QDialog.Accepted):
     window.show()
     window.loaddata()
 sys.exit(app.exec_())
+
+print(print.__doc__)
